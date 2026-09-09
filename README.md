@@ -4,7 +4,6 @@
 
 ## 📌 Загальна інформація
 * **Назва проєкту:** SmartBite
-* **Репозиторій:** [https://github.com/pprogmer/smartbite-desktop.git](https://github.com/pprogmer/smartbite-desktop.git)
 * **Формфактор:** Автономний десктопний застосунок
 
 ---
