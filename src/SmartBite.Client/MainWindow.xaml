@@ -1,0 +1,14 @@
+<Window x:Class="SmartBite.Client.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:SmartBite.Client.ViewModels"
+        xmlns:views="clr-namespace:SmartBite.Client.Views"
+        Title="SmartBite" Width="900" Height="600" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <!-- Navigation: a view model is shown with the view registered here. -->
+        <DataTemplate DataType="{x:Type vm:AuthViewModel}">
+            <views:AuthView />
+        </DataTemplate>
+    </Window.Resources>
+    <ContentControl Content="{Binding Current}" />
+</Window>

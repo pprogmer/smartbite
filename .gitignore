@@ -1,2 +1,29 @@
 class_requirements.md
 06-backlog.md
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]ogs/
+TestResults/
+*.binlog
+
+# IDE
+.vs/
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.user
+*.suo
+*.DotSettings.user
+
+# Secrets and local environment (use .env.example and dotnet user-secrets instead)
+.env
+appsettings.*.local.json
+*.pfx
+
+# OS
+Thumbs.db
+.DS_Store
+docs/desings
+docs/diagrams/wireframes

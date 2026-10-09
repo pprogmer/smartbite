@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SmartBite.Api/SmartBite.Api.csproj" />
+    <Project Path="src/SmartBite.Client/SmartBite.Client.csproj" />
+    <Project Path="src/SmartBite.Contracts/SmartBite.Contracts.csproj" />
+    <Project Path="src/SmartBite.Data/SmartBite.Data.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SmartBite.Tests/SmartBite.Tests.csproj" />
+  </Folder>
+</Solution>

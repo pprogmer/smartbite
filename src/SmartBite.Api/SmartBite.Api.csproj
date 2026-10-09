@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <UserSecretsId>c14d5b4a-c355-457b-a3bc-69f0847a07c3</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SmartBite.Contracts\SmartBite.Contracts.csproj" />
+    <ProjectReference Include="..\SmartBite.Data\SmartBite.Data.csproj" />
+  </ItemGroup>
+</Project>
