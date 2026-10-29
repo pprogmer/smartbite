@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using SmartBite.Data;
 namespace SmartBite.Api.Controllers;
 
 [ApiController]
+[AllowAnonymous]
 [Route("api/auth")]
 public class AuthController(SmartBiteDbContext db, IConfiguration config) : ControllerBase
 {
