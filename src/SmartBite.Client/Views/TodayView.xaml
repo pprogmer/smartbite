@@ -1,0 +1,325 @@
+<UserControl
+  x:Class="SmartBite.Client.Views.TodayView"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:views="clr-namespace:SmartBite.Client.Views"
+>
+  <UserControl.Resources>
+    <!-- Columns of the diary table; the header and every row use the same widths. -->
+    <Style x:Key="Num" TargetType="TextBlock">
+      <Setter Property="TextAlignment" Value="Right" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <DataTemplate x:Key="EntryTemplate">
+      <Grid Height="44" Margin="16,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="90" />
+          <ColumnDefinition Width="60" />
+          <ColumnDefinition Width="70" />
+          <ColumnDefinition Width="56" />
+          <ColumnDefinition Width="56" />
+          <ColumnDefinition Width="56" />
+          <ColumnDefinition Width="80" />
+        </Grid.ColumnDefinitions>
+        <TextBlock
+          Grid.Column="0"
+          Text="{Binding Name}"
+          VerticalAlignment="Center"
+          TextTrimming="CharacterEllipsis"
+        />
+        <Border
+          Grid.Column="1"
+          Style="{StaticResource Badge}"
+          VerticalAlignment="Center"
+          Padding="8,1"
+        >
+          <TextBlock Text="{Binding Source}" FontSize="12" />
+        </Border>
+        <TextBlock Grid.Column="2" Text="{Binding Servings}" Style="{StaticResource Num}" />
+        <TextBlock
+          Grid.Column="3"
+          Text="{Binding Calories}"
+          Style="{StaticResource Num}"
+          FontWeight="SemiBold"
+        />
+        <TextBlock Grid.Column="4" Text="{Binding Protein}" Style="{StaticResource Num}" />
+        <TextBlock Grid.Column="5" Text="{Binding Fat}" Style="{StaticResource Num}" />
+        <TextBlock Grid.Column="6" Text="{Binding Carbs}" Style="{StaticResource Num}" />
+        <StackPanel Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button
+            Content="✎"
+            Style="{StaticResource IconButton}"
+            Command="{Binding EditCommand}"
+            ToolTip="Редагувати"
+          />
+          <Button
+            Content="🗑"
+            Style="{StaticResource IconButton}"
+            Command="{Binding DeleteCommand}"
+            ToolTip="Видалити"
+          />
+        </StackPanel>
+      </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="MealTemplate">
+      <StackPanel>
+        <Border
+          Background="{StaticResource HeaderBrush}"
+          BorderBrush="{StaticResource DividerBrush}"
+          BorderThickness="0,1,0,0"
+          Height="36"
+          Padding="16,0"
+        >
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <TextBlock
+              Text="{Binding Calories}"
+              Style="{StaticResource Muted}"
+              VerticalAlignment="Center"
+              Margin="12,0,0,0"
+            />
+          </StackPanel>
+        </Border>
+        <ItemsControl ItemsSource="{Binding Rows}" ItemTemplate="{StaticResource EntryTemplate}" />
+      </StackPanel>
+    </DataTemplate>
+  </UserControl.Resources>
+
+  <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+    <StackPanel Margin="28,24">
+      <views:ErrorBanner Margin="0,0,0,16" />
+
+      <!-- Title and date -->
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+          <Button
+            Content="‹"
+            FontSize="20"
+            Command="{Binding PreviousCommand}"
+            Width="32"
+            Padding="0"
+            AutomationProperties.AutomationId="PrevDay"
+          />
+          <TextBlock
+            Text="{Binding DateText}"
+            VerticalAlignment="Center"
+            Width="100"
+            TextAlignment="Center"
+            AutomationProperties.AutomationId="DateText"
+          />
+          <Button
+            Content="›"
+            FontSize="20"
+            Command="{Binding NextCommand}"
+            Width="32"
+            Padding="0"
+            AutomationProperties.AutomationId="NextDay"
+          />
+          <Button Content="Сьогодні" Command="{Binding TodayCommand}" Margin="12,0,0,0" />
+        </StackPanel>
+        <TextBlock Text="Сьогодні" Style="{StaticResource PageTitle}" />
+      </DockPanel>
+
+      <!-- Summary -->
+      <Border Style="{StaticResource Card}" Padding="24" Margin="0,20,0,0">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="32" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+
+          <StackPanel Grid.Column="0" VerticalAlignment="Center">
+            <TextBlock Text="Калорії" Style="{StaticResource Muted}" />
+            <StackPanel Orientation="Horizontal">
+              <TextBlock
+                Text="{Binding ConsumedText}"
+                FontSize="40"
+                FontWeight="SemiBold"
+                AutomationProperties.AutomationId="Consumed"
+              >
+                <TextBlock.Style>
+                  <Style TargetType="TextBlock">
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding IsOver}" Value="True">
+                        <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </TextBlock.Style>
+              </TextBlock>
+              <TextBlock
+                Text="{Binding NormText}"
+                FontSize="20"
+                Style="{StaticResource Muted}"
+                VerticalAlignment="Bottom"
+                Margin="8,0,0,8"
+                AutomationProperties.AutomationId="NormText"
+              />
+            </StackPanel>
+            <ProgressBar
+              Height="10"
+              Margin="0,4,0,8"
+              Minimum="0"
+              Maximum="{Binding Norm}"
+              Value="{Binding Consumed, Mode=OneWay}"
+            >
+              <ProgressBar.Style>
+                <Style TargetType="ProgressBar" BasedOn="{StaticResource Bar}">
+                  <Setter Property="Foreground" Value="{StaticResource GreenBrush}" />
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsOver}" Value="True">
+                      <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </ProgressBar.Style>
+            </ProgressBar>
+            <TextBlock
+              Text="{Binding CaloriesNote}"
+              Style="{StaticResource Muted}"
+              AutomationProperties.AutomationId="CaloriesNote"
+            />
+          </StackPanel>
+
+          <Border
+            Grid.Column="1"
+            BorderBrush="{StaticResource LineBrush}"
+            BorderThickness="1,0,0,0"
+            HorizontalAlignment="Center"
+          />
+
+          <ItemsControl Grid.Column="2" ItemsSource="{Binding Macros}" VerticalAlignment="Center">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Margin="0,6">
+                  <DockPanel>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding Text}" />
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                  </DockPanel>
+                  <ProgressBar
+                    Style="{StaticResource Bar}"
+                    Margin="0,4,0,0"
+                    Maximum="{Binding Maximum}"
+                    Value="{Binding Value, Mode=OneWay}"
+                    Foreground="{Binding Brush}"
+                  />
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </Grid>
+      </Border>
+
+      <!-- Diary -->
+      <DockPanel Margin="0,24,0,12">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+          <Button
+            Content="+ Додати вручну"
+            Command="{Binding AddCommand}"
+            AutomationProperties.AutomationId="AddManual"
+          />
+          <Button Content="Оцінити страву" Command="{Binding EstimateCommand}" Margin="8,0,0,0" />
+          <Button
+            Content="Приготувати з наявного"
+            Command="{Binding CookCommand}"
+            Style="{StaticResource PrimaryButton}"
+            Margin="8,0,0,0"
+          />
+        </StackPanel>
+        <TextBlock
+          Text="Щоденник"
+          Style="{StaticResource SectionTitle}"
+          VerticalAlignment="Center"
+        />
+      </DockPanel>
+
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <Grid Height="36" Margin="16,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="90" />
+              <ColumnDefinition Width="60" />
+              <ColumnDefinition Width="70" />
+              <ColumnDefinition Width="56" />
+              <ColumnDefinition Width="56" />
+              <ColumnDefinition Width="56" />
+              <ColumnDefinition Width="80" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+              Grid.Column="0"
+              Text="Назва"
+              Style="{StaticResource TableHeader}"
+              VerticalAlignment="Center"
+            />
+            <TextBlock
+              Grid.Column="1"
+              Text="Джерело"
+              Style="{StaticResource TableHeader}"
+              VerticalAlignment="Center"
+            />
+            <TextBlock
+              Grid.Column="2"
+              Text="Порції"
+              Style="{StaticResource TableHeader}"
+              VerticalAlignment="Center"
+              TextAlignment="Right"
+            />
+            <TextBlock
+              Grid.Column="3"
+              Text="Ккал"
+              Style="{StaticResource TableHeader}"
+              VerticalAlignment="Center"
+              TextAlignment="Right"
+            />
+            <TextBlock
+              Grid.Column="4"
+              Text="Б"
+              Foreground="{StaticResource ProteinBrush}"
+              FontWeight="SemiBold"
+              VerticalAlignment="Center"
+              TextAlignment="Right"
+            />
+            <TextBlock
+              Grid.Column="5"
+              Text="Ж"
+              Foreground="{StaticResource FatBrush}"
+              FontWeight="SemiBold"
+              VerticalAlignment="Center"
+              TextAlignment="Right"
+            />
+            <TextBlock
+              Grid.Column="6"
+              Text="В"
+              Foreground="{StaticResource CarbsBrush}"
+              FontWeight="SemiBold"
+              VerticalAlignment="Center"
+              TextAlignment="Right"
+            />
+          </Grid>
+          <ItemsControl
+            ItemsSource="{Binding Meals}"
+            ItemTemplate="{StaticResource MealTemplate}"
+            AutomationProperties.AutomationId="Meals"
+          />
+          <Border
+            BorderBrush="{StaticResource DividerBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="16,20"
+            Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}"
+          >
+            <TextBlock
+              Text="У цей день записів ще немає. Додайте перший за допомогою кнопок вище."
+              Style="{StaticResource Muted}"
+              TextAlignment="Center"
+            />
+          </Border>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
