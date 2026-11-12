@@ -3,23 +3,18 @@ using SmartBite.Client.Services;
 namespace SmartBite.Client.ViewModels;
 
 /// <summary>Sign-in and registration screen.</summary>
-public class AuthViewModel : ViewModelBase
+public class AuthViewModel : PageViewModel
 {
     private readonly ApiClient _api;
+    private readonly MainViewModel _shell;
     private bool _isRegister;
-    private string _error = "";
-    private string _message = "";
+    private bool _isBusy;
 
-    public AuthViewModel(ApiClient api)
+    public AuthViewModel(ApiClient api, MainViewModel shell)
     {
         _api = api;
+        _shell = shell;
         SubmitCommand = new RelayCommand(SubmitAsync);
-        ToggleModeCommand = new RelayCommand(() =>
-        {
-            IsRegister = !IsRegister;
-            Error = "";
-            return Task.CompletedTask;
-        });
     }
 
     public string Email { get; set; } = "";
@@ -32,50 +27,56 @@ public class AuthViewModel : ViewModelBase
         set
         {
             Set(ref _isRegister, value);
+            Notify(nameof(IsLogin));
             Notify(nameof(SubmitText));
-            Notify(nameof(ToggleModeText));
+            Error = "";
         }
     }
 
-    public string Error
+    public bool IsLogin
     {
-        get => _error;
-        set => Set(ref _error, value);
+        get => !IsRegister;
+        set => IsRegister = !value;
     }
 
-    public string Message
+    public bool IsBusy
     {
-        get => _message;
-        set => Set(ref _message, value);
+        get => _isBusy;
+        private set
+        {
+            Set(ref _isBusy, value);
+            Notify(nameof(IsEditable));
+            Notify(nameof(SubmitText));
+        }
     }
 
-    public string SubmitText => IsRegister ? "Зареєструватися" : "Увійти";
+    public bool IsEditable => !IsBusy;
 
-    public string ToggleModeText =>
-        IsRegister ? "Вже є обліковий запис? Увійти" : "Немає облікового запису? Зареєструватися";
+    public string SubmitText =>
+        IsBusy ? "Зачекайте..."
+        : IsRegister ? "Зареєструватися"
+        : "Увійти";
 
     public RelayCommand SubmitCommand { get; }
-    public RelayCommand ToggleModeCommand { get; }
 
     private async Task SubmitAsync()
     {
-        Error = "";
-        Message = "";
         if (IsRegister && Password != ConfirmPassword)
         {
             Error = "Паролі не збігаються";
             return;
         }
 
-        var error = await _api.AuthAsync(IsRegister, Email.Trim(), Password);
-        if (error is null)
+        IsBusy = true;
+        string? email = null;
+        if (
+            await Run(async () =>
+                email = (await _api.AuthAsync(IsRegister, Email.Trim(), Password)).Email
+            )
+        )
         {
-            // TODO: navigate to the profile (after registration) or "Сьогодні" (after sign-in).
-            Message = $"Ви увійшли як {Email.Trim()}";
+            await Run(() => _shell.SignedInAsync(email!));
         }
-        else
-        {
-            Error = error;
-        }
+        IsBusy = false;
     }
 }

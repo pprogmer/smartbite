@@ -1,0 +1,224 @@
+<Window
+  x:Class="SmartBite.Client.Views.DiaryEntryWindow"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:views="clr-namespace:SmartBite.Client.Views"
+  xmlns:vm="clr-namespace:SmartBite.Client.ViewModels"
+  Title="SmartBite"
+  Width="520"
+  SizeToContent="Height"
+  ResizeMode="NoResize"
+  WindowStartupLocation="CenterOwner"
+  ShowInTaskbar="False"
+  Background="{StaticResource CardBrush}"
+  Foreground="{StaticResource TextBrush}"
+  FontFamily="Segoe UI Variable Text, Segoe UI"
+  FontSize="14"
+>
+  <Window.Resources>
+    <Style x:Key="NutrientBox" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+      <Setter Property="HorizontalContentAlignment" Value="Right" />
+    </Style>
+    <!-- Values of a recipe or an estimate cannot be edited. -->
+    <Style x:Key="ValueBox" TargetType="TextBox" BasedOn="{StaticResource NutrientBox}">
+      <Setter Property="IsReadOnly" Value="{Binding IsEstimated}" />
+      <Style.Triggers>
+        <Trigger Property="IsReadOnly" Value="True">
+          <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="Total" TargetType="TextBlock">
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="TextAlignment" Value="Right" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+  </Window.Resources>
+
+  <StackPanel>
+    <StackPanel Margin="24">
+      <TextBlock Text="{Binding Title}" Style="{StaticResource SectionTitle}" />
+      <views:ErrorBanner Margin="0,16,0,0" />
+
+      <TextBlock Text="Назва" Style="{StaticResource FieldLabel}" Margin="0,16,0,8" />
+      <TextBox Text="{Binding Name}" AutomationProperties.AutomationId="EntryName" />
+
+      <Grid Margin="0,16,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="1.2*" />
+          <ColumnDefinition Width="12" />
+          <ColumnDefinition Width="1*" />
+          <ColumnDefinition Width="12" />
+          <ColumnDefinition Width="96" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+          <TextBlock Text="Дата" Style="{StaticResource FieldLabel}" />
+          <DatePicker SelectedDate="{Binding Date}" MinHeight="32" />
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <TextBlock Text="Прийом їжі" Style="{StaticResource FieldLabel}" />
+          <ComboBox
+            ItemsSource="{x:Static vm:Labels.Meals}"
+            DisplayMemberPath="Label"
+            SelectedValuePath="Value"
+            SelectedValue="{Binding Meal}"
+          />
+        </StackPanel>
+        <StackPanel Grid.Column="4">
+          <TextBlock Text="Порції" Style="{StaticResource FieldLabel}" />
+          <TextBox
+            Text="{Binding Servings, UpdateSourceTrigger=PropertyChanged}"
+            Style="{StaticResource NutrientBox}"
+            AutomationProperties.AutomationId="EntryServings"
+          />
+        </StackPanel>
+      </Grid>
+
+      <DockPanel Margin="0,24,0,8">
+        <Border
+          DockPanel.Dock="Right"
+          Style="{StaticResource Badge}"
+          Visibility="{Binding IsEstimated, Converter={StaticResource BoolToVisibility}}"
+        >
+          <TextBlock Text="Орієнтовні значення" FontSize="12" />
+        </Border>
+        <TextBlock Text="Харчова цінність" FontWeight="SemiBold" />
+      </DockPanel>
+
+      <!-- Per serving (editable for manual entries) and total (always calculated). -->
+      <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="4">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="128" />
+            <ColumnDefinition Width="128" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="32" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <Border
+            Grid.ColumnSpan="3"
+            Background="{StaticResource HeaderBrush}"
+            CornerRadius="3,3,0,0"
+          />
+          <TextBlock
+            Grid.Column="1"
+            Text="на 1 порцію"
+            Style="{StaticResource TableHeader}"
+            VerticalAlignment="Center"
+            TextAlignment="Right"
+            Margin="0,0,12,0"
+          />
+          <TextBlock
+            Grid.Column="2"
+            Text="разом"
+            Style="{StaticResource TableHeader}"
+            VerticalAlignment="Center"
+            TextAlignment="Right"
+            Margin="0,0,12,0"
+          />
+
+          <TextBlock Grid.Row="1" Text="Калорії, ккал" Margin="12,0" VerticalAlignment="Center" />
+          <TextBox
+            Grid.Row="1"
+            Grid.Column="1"
+            Text="{Binding Calories, UpdateSourceTrigger=PropertyChanged}"
+            Style="{StaticResource ValueBox}"
+            Margin="4"
+            AutomationProperties.AutomationId="EntryCalories"
+          />
+          <TextBlock
+            Grid.Row="1"
+            Grid.Column="2"
+            Text="{Binding TotalCalories}"
+            Style="{StaticResource Total}"
+            Margin="0,0,12,0"
+          />
+
+          <TextBlock Grid.Row="2" Text="Білки, г" Margin="12,0" VerticalAlignment="Center" />
+          <TextBox
+            Grid.Row="2"
+            Grid.Column="1"
+            Text="{Binding Protein, UpdateSourceTrigger=PropertyChanged}"
+            Style="{StaticResource ValueBox}"
+            Margin="4"
+            AutomationProperties.AutomationId="EntryProtein"
+          />
+          <TextBlock
+            Grid.Row="2"
+            Grid.Column="2"
+            Text="{Binding TotalProtein}"
+            Style="{StaticResource Total}"
+            Margin="0,0,12,0"
+          />
+
+          <TextBlock Grid.Row="3" Text="Жири, г" Margin="12,0" VerticalAlignment="Center" />
+          <TextBox
+            Grid.Row="3"
+            Grid.Column="1"
+            Text="{Binding Fat, UpdateSourceTrigger=PropertyChanged}"
+            Style="{StaticResource ValueBox}"
+            Margin="4"
+            AutomationProperties.AutomationId="EntryFat"
+          />
+          <TextBlock
+            Grid.Row="3"
+            Grid.Column="2"
+            Text="{Binding TotalFat}"
+            Style="{StaticResource Total}"
+            Margin="0,0,12,0"
+          />
+
+          <TextBlock Grid.Row="4" Text="Вуглеводи, г" Margin="12,0" VerticalAlignment="Center" />
+          <TextBox
+            Grid.Row="4"
+            Grid.Column="1"
+            Text="{Binding Carbs, UpdateSourceTrigger=PropertyChanged}"
+            Style="{StaticResource ValueBox}"
+            Margin="4"
+            AutomationProperties.AutomationId="EntryCarbs"
+          />
+          <TextBlock
+            Grid.Row="4"
+            Grid.Column="2"
+            Text="{Binding TotalCarbs}"
+            Style="{StaticResource Total}"
+            Margin="0,0,12,0"
+          />
+        </Grid>
+      </Border>
+      <TextBlock
+        Text="Значення взято з рецепта або оцінки й не редагуються."
+        FontSize="12"
+        Style="{StaticResource Muted}"
+        Margin="0,8,0,0"
+        Visibility="{Binding IsEstimated, Converter={StaticResource BoolToVisibility}}"
+      />
+    </StackPanel>
+
+    <Border
+      Background="{StaticResource HeaderBrush}"
+      BorderBrush="{StaticResource LineBrush}"
+      BorderThickness="0,1,0,0"
+      Padding="24,20"
+    >
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button Content="Скасувати" Command="{Binding CancelCommand}" Width="120" IsCancel="True" />
+        <Button
+          Content="Зберегти"
+          Command="{Binding SaveCommand}"
+          Style="{StaticResource PrimaryButton}"
+          Width="120"
+          Margin="8,0,0,0"
+          IsDefault="True"
+          AutomationProperties.AutomationId="EntrySave"
+        />
+      </StackPanel>
+    </Border>
+  </StackPanel>
+</Window>
