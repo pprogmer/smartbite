@@ -1,5 +1,7 @@
 # SmartBite
 
+[![CI](https://github.com/pprogmer/smartbite/actions/workflows/ci.yml/badge.svg)](https://github.com/pprogmer/smartbite/actions/workflows/ci.yml)
+
 SmartBite - настільний застосунок для ОС Windows, призначений для планування харчування. Застосунок розраховує персональну добову норму калорій, білків, жирів і вуглеводів (КБЖВ), веде облік продуктів, наявних у користувача, формує рецепти з цих продуктів з урахуванням залишку добової норми та оцінює калорійність страви за фотографією або текстовим переліком інгредієнтів.
 
 Проєкт виконується в межах навчальної дисципліни "Програмна інженерія. Частина 1".
@@ -83,7 +85,9 @@ smartbite/
 │   ├── SmartBite.Data/        Entity Framework Core: сутності, DbContext, міграції
 │   ├── SmartBite.Contracts/   спільні класи запитів і відповідей
 │   └── SmartBite.Client/      настільний клієнт WPF (MVVM)
-├── tests/SmartBite.Tests/     модульні тести (xUnit)
+├── tests/
+│   ├── SmartBite.Tests/       модульні та інтеграційні тести API (xUnit)
+│   └── SmartBite.Client.Tests/ тести клієнта (xUnit)
 └── SmartBite.slnx
 ```
 
@@ -117,3 +121,25 @@ smartbite/
 dotnet tool restore
 dotnet ef migrations add <Назва> --project src/SmartBite.Data --startup-project src/SmartBite.Api
 ```
+
+## Неперервна інтеграція (CI)
+
+CI налаштовано через GitHub Actions у файлі `.github/workflows/ci.yml`. Перевірка запускається автоматично при кожному push і pull request у гілку `main` (а також вручну на вкладці Actions) на Windows-машині GitHub і виконує такі кроки:
+
+1. перевірка форматування коду інструментом CSharpier (`dotnet csharpier check .`);
+2. збирання всього рішення в конфігурації Release; будь-яке попередження компілятора вважається помилкою (`-warnaserror`);
+3. запуск усіх тестів (`dotnet test`); тести використовують базу в пам'яті та фейковий OpenRouter, тому PostgreSQL і ключ API не потрібні;
+4. збереження звіту тестів (`.trx`) як артефакту запуску `test-results`.
+
+Якщо будь-який крок не проходить, запуск позначається червоним. Результати всіх запусків: https://github.com/pprogmer/smartbite/actions
+
+Ті самі перевірки локально:
+
+```powershell
+dotnet tool restore
+dotnet csharpier check .
+dotnet build SmartBite.slnx -c Release -warnaserror
+dotnet test SmartBite.slnx -c Release --no-build
+```
+
+Якщо перевірка форматування не проходить, виправити код можна командою `dotnet csharpier format .`

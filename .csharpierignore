@@ -1,0 +1,2 @@
+# EF Core generates these files, so we do not format them by hand
+**/Migrations/
