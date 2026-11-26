@@ -6,6 +6,7 @@
     <Project Path="src/SmartBite.Data/SmartBite.Data.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/SmartBite.Client.Tests/SmartBite.Client.Tests.csproj" />
     <Project Path="tests/SmartBite.Tests/SmartBite.Tests.csproj" />
   </Folder>
 </Solution>
